@@ -19,6 +19,9 @@ export default class randomNFT extends Component {
     var num = Math.floor(Math.random() * (max - min + 1)) + min;
     return num;
   }
+  componentDidMount() {
+    window.addEventListener('load', this.generateNFT());
+ }
 
   generateNFT = async () => {
     // fetch('https://api.opensea.io/api/v1/assets?order_direction=desc&offset=0&limit=1', options)
@@ -29,37 +32,77 @@ export default class randomNFT extends Component {
     var location = this.generateRandom(1, num) - 1;
     var decription = ""
     var collection = ""
-    console.log(location);
-    const res = await axios.get(
-      "https://api.opensea.io/api/v1/assets?order_direction=desc&offset=0&limit=" +num
-    );
-    console.log(res.data.assets[location]);
-    // var creator= res.data.assets[location].creator;
+    try{
+      const res = await axios.get(
+        "https://api.opensea.io/api/v1/assets?order_direction=desc&offset=0&limit=" +num
+      );
 
-    if (
-      res.data.assets[location].creator === null  ) {
-      this.generateNFT();
-    } else if (res.data.assets[location].image_url === null) {
-      this.generateNFT();
-    } 
-     else if (res.data.assets[location].description === null ||res.data.assets[location].description === "" ){
-         decription = "This NFT does not have a Decription"
-     }
-     else if (res.data.assets[location].collection.description === null ||res.data.assets[location].collection.description === "" ){
-        collection = "This NFT does not have a Decription"
+      if(!res.data.assets[location].collection.description || !res.data.assets[location].description ){
+        console.log("Description is null")
+        decription = "This NFT does not have a Decription";
+        console.log("Collection is null")
+        collection = "This NFT does not have a Collection Description "
+        this.setState({ 
+          img: res.data.assets[location].image_url,
+          name: res.data.assets[location].name,
+          creator: res.data.assets[location].creator.user.username,
+          link: res.data.assets[location].permalink,
+          decription: decription,
+          collection: collection
+        }, () => {
+          console.log(this.state.collection);
+        }); 
+      }
+      // var creator= res.data.assets[location].creator;
+       else  if (!res.data.assets[location].description){
+          console.log("Description is null")
+           decription = "This NFT does not have a Decription";
+           this.setState({ 
+            img: res.data.assets[location].image_url,
+            name: res.data.assets[location].name,
+            creator: res.data.assets[location].creator.user.username,
+            link: res.data.assets[location].permalink,
+            decription: decription,
+            collection: res.data.assets[location].collection.description
+          }, () => {
+            console.log(this.state.decription);
+          }); 
+
+       }
+       else  if (!res.data.assets[location].collection.description ){
+        console.log("Collection is null")
+        collection = "This NFT does not have a Collection Description "
+        this.setState({ 
+          img: res.data.assets[location].image_url,
+          name: res.data.assets[location].name,
+          creator: res.data.assets[location].creator.user.username,
+          link: res.data.assets[location].permalink,
+          decription: decription,
+          collection: collection
+        }, () => {
+          console.log(this.state.collection);
+        }); 
+      }
+        else{
+          decription = res.data.assets[location].description;
+          collection = res.data.assets[location].collection.description
+          this.setState({ 
+            img: res.data.assets[location].image_url,
+            name: res.data.assets[location].name,
+            creator: res.data.assets[location].creator.user.username,
+            link: res.data.assets[location].permalink,
+            decription: decription,
+            collection: res.data.assets[location].collection.description
+          }, () => {
+          }); 
+        }
+       
+      }
+    
+    catch (e){
+      console.log("error",e)
     }
-    else {
-        decription = res.data.assets[location].description;
-        collection = res.data.assets[location].collection.description
-      this.setState({
-        img: res.data.assets[location].image_url,
-        name: res.data.assets[location].name,
-        creator: res.data.assets[location].creator.user.username,
-        link: res.data.assets[location].permalink,
-        decription: decription,
-        collection: res.data.assets[location].collection.description
-      });
-    }
+  
   };
   render() {
     return (
