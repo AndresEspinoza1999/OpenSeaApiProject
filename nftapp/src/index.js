@@ -7,7 +7,7 @@ import RandomNFT from './components/randomNFT'
 
 ReactDOM.render(
   <React.StrictMode>
-    <RandomNFT />
+    <RandomNFT /> 
   </React.StrictMode>,
   document.getElementById('root')
 );
